@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Styles */
+body {
+  @apply bg-gray-50 text-gray-900 font-sans;
+}
+
+/* Scrollbar Styling for Mobile-First POS */
+::-webkit-scrollbar {
+  width: 4px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full;
+}
+
+/* Thermal Printer Optimization */
+@media print {
+  @page {
+    margin: 0;
+    size: 80mm auto;
+  }
+  
+  body {
+    background-color: white !important;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .receipt-container {
+    width: 80mm;
+    margin: 0;
+    padding: 2mm;
+    box-sizing: border-box;
+  }
+
+  /* Hide everything except the receipt when printing */
+  body * {
+    visibility: hidden;
+  }
+  
+  .receipt-container, .receipt-container * {
+    visibility: visible;
+  }
+  
+  .receipt-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+  }
+}
