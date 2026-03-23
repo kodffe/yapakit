@@ -96,5 +96,6 @@ const PORT = process.env.PORT || 5000;
 httpServer.listen(PORT, () => {
   console.log(`[Server] Yapakit running on port ${PORT}`);
   console.log(`[Environment] Mode: ${process.env.NODE_ENV || 'development'}`);
+  console.log(`[Database] Connected to MongoDB`);
 });
 
