@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Receipt, Clock, LogOut } from 'lucide-react';
+import { Receipt, Clock, LogOut, Loader2 } from 'lucide-react';
 import { useActiveOrders } from '../../orders/api/orderApi';
 import { useRestaurantSettings } from '../../pos/api/restaurantApi';
 import { useCurrentShift } from '../api/shiftApi';
@@ -23,8 +23,10 @@ const CashierDashboard = () => {
 
   if (isOrdersLoading || isShiftLoading) {
     return (
-      <div className="p-8 flex justify-center text-gray-400">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-400"></div>
+      <div className="min-h-[70vh] flex flex-col items-center justify-center bg-transparent">
+        <Loader2 className="w-12 h-12 animate-spin text-brand-primary mb-4" />
+        <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Loading Terminal</h2>
+        <p className="text-sm font-bold text-gray-400 uppercase tracking-widest mt-1">Fetching active orders & shift data...</p>
       </div>
     );
   }

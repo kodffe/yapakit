@@ -32,7 +32,12 @@ import ManagerSupportPage from './features/support/pages/ManagerSupportPage';
 
 const RoleBasedGuard = ({ allowedRoles, children }: { allowedRoles: string[], children: React.ReactNode }) => {
   const { memberships, currentRestaurantId } = useAuthStore();
-  const currentMembership = memberships?.find((m) => m.restaurantId._id === currentRestaurantId);
+  
+  if (!memberships || !currentRestaurantId) {
+    return null; // Let ProtectedRoute handle loading
+  }
+
+  const currentMembership = memberships.find((m) => m.restaurantId._id === currentRestaurantId);
   const role = currentMembership?.tenantRole ?? '';
 
   if (!allowedRoles.includes(role)) {

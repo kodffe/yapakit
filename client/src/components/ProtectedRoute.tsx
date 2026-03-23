@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Navigate, Outlet, useLocation, useParams } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import useAuthStore from '../store/authStore';
 
@@ -12,15 +12,29 @@ interface ProtectedRouteProps {
  * Acts as a traffic controller for unauthenticated users, global admins, and tenants.
  */
 function ProtectedRoute({ allowedSystemRoles }: ProtectedRouteProps) {
+  const { slug } = useParams<{ slug: string }>();
   const { token, user, memberships, currentRestaurantId, setRestaurantContext } = useAuthStore();
   const location = useLocation();
 
-  // 1. Auto-select for single-membership users if they have no context yet
+  // 1. Auto-select or sync for single-membership users or deep-links
   useEffect(() => {
-    if (token && !currentRestaurantId && memberships?.length === 1) {
+    if (!token || !memberships) return;
+
+    // A. If no context yet and only one restaurant, auto-select it
+    if (!currentRestaurantId && memberships.length === 1) {
       setRestaurantContext(memberships[0].restaurantId._id);
+      return;
     }
-  }, [token, currentRestaurantId, memberships, setRestaurantContext]);
+
+    // B. SLUG SYNC: If we are in a tenant route (/:slug/...)
+    // Ensure currentRestaurantId matches the slug in the URL
+    if (slug && memberships.length > 0) {
+      const matchingMembership = memberships.find(m => m.restaurantId.slug === slug);
+      if (matchingMembership && matchingMembership.restaurantId._id !== currentRestaurantId) {
+        setRestaurantContext(matchingMembership.restaurantId._id);
+      }
+    }
+  }, [token, currentRestaurantId, memberships, setRestaurantContext, slug]);
 
   // 2. Not authenticated → redirect to login
   if (!token || !user) {
@@ -51,12 +65,13 @@ function ProtectedRoute({ allowedSystemRoles }: ProtectedRouteProps) {
       return <Navigate to="/select-restaurant" replace />;
     }
 
-    // Still trying to resolve single membership or load
+    // Still trying to resolve membership context
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center bg-white">
         <div className="text-center">
-          <Loader2 className="w-10 h-10 animate-spin text-primary-600 mx-auto mb-4" />
-          <p className="text-gray-500 font-medium">Setting up your workspace...</p>
+          <Loader2 className="w-12 h-12 animate-spin text-brand-primary mx-auto mb-4" />
+          <h2 className="text-xl font-black text-gray-900 uppercase tracking-tight">Setting up Workspace</h2>
+          <p className="text-gray-500 font-medium text-sm mt-1 uppercase tracking-widest">Preparing your environment...</p>
         </div>
       </div>
     );
